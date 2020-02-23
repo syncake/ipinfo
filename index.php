@@ -29,4 +29,4 @@ try{
 
 /********************/
 header('content-type: application/json;charset=utf8');
-echo json_encode($response);
+echo json_encode($response).PHP_EOL;
