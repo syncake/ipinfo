@@ -6,7 +6,7 @@ use GeoIp2\Database\Reader;
 $ipaddr = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
 try{
 	$uri = $_SERVER['REQUEST_URI'];
-	if(preg_match('#^\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$#i', trim($uri, ' /'), $match) ){
+	if(preg_match('#^\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$#i', $uri, $match) ){
 		$ipaddr = $match[1];
 	}elseif($uri!='/'){
 		throw new Exception('INVALID IPv4', 1000);
