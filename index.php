@@ -3,11 +3,15 @@
 require_once './vendor/autoload.php';
 use GeoIp2\Database\Reader;
 
-$response = [
-	'ip' => $ipaddr = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'],
-];
-
+$ipaddr = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
 try{
+	$uri = $_SERVER['REQUEST_URI'];
+	if(preg_match('#^\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$#i', trim($uri, ' /'), $match) ){
+		$ipaddr = $match[1];
+	}elseif($uri!='/'){
+		throw new Exception('INVALID IPv4', 1000);
+	}
+
 	$reader = new Reader(__DIR__.'/data/GeoIP2-City.mmdb');
 	$record = $reader->city($ipaddr);
 
@@ -22,10 +26,15 @@ try{
 		'location_longitude' => $record->location->longitude, 
 		'traits' => $record->traits->network, 
 	];
+
+	$response['ip'] = $ipaddr;
 	$geoip && $response['geo'] = $geoip;
 }catch(Exception $e){
+	$response =  [
+		'code' => $e->getCode(),
+		'msg' => $e->getMessage(),
+	];
 }
-
 
 /********************/
 header('content-type: application/json;charset=utf8');
